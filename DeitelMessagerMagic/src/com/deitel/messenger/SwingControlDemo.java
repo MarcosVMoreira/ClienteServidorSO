@@ -267,16 +267,18 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             message += temp[i].x + CanvasConstants.POINT_SEPARATOR + temp[i].y + CanvasConstants.POINT_SEPARATOR;
         }
 
+        int cor = color.getRGB();
+
         if (message.length() > 0) {
             message = message.substring(0, message.length() - 1);
+            message = message + SocketMessengerConstants.MESSAGE_SEPARATOR + cor;
         }
 
         //inserir um separador MESSAGE_SEPARATORs
         //inserir a cor
         //pra mandar pro servidor a cor, temos que transformar pra string, usnado color.getRGB();
-        int cor = color.getRGB();
         //concatenar a cor na mensagem.
-        message = message + SocketMessengerConstants.MESSAGE_SEPARATOR + cor;
+      
         System.out.println("message " + message);
         if (listArrayPoint.size() - 1 > 0) {
             manager.sendMessage(String.valueOf(command),

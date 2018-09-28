@@ -13,7 +13,7 @@ public class MessageSender implements Runnable
    private Socket clientSocket; // Socket over which to send message
    private String messageToSend; // message to send
 
-   public MessageSender( Socket socket, String userName, String message ) 
+   public MessageSender( Socket socket, String userName, String message) 
    {
       clientSocket = socket; // store socket for client
       
