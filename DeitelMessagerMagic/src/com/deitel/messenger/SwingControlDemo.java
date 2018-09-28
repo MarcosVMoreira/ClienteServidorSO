@@ -5,6 +5,7 @@
  */
 package com.deitel.messenger;
 
+import com.deitel.messenger.sockets.SocketMessengerConstants;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -68,7 +69,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
         btnDesenhar = new javax.swing.JButton();
         jSliderEraser = new javax.swing.JSlider();
         btnColor = new javax.swing.JButton();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        btnEnviar = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItemConecta = new javax.swing.JMenuItem();
@@ -113,10 +114,10 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             }
         });
 
-        jToggleButton1.setText("Enviar");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnEnviar.setText("Enviar");
+        btnEnviar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                btnEnviarActionPerformed(evt);
             }
         });
 
@@ -134,7 +135,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
                         .addComponent(btnColor, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnApagar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSliderEraser, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(25, 25, 25))
@@ -154,7 +155,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
                             .addComponent(btnColor)
                             .addComponent(btnApagar))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jToggleButton1))))
+                        .addComponent(btnEnviar))))
         );
 
         jMenu1.setText("File");
@@ -239,15 +240,19 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
 
     }//GEN-LAST:event_jMenuItemConectaActionPerformed
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        Thread T1 = new Thread(new Runnable() {
+    private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 sendMessage();
             }
         });
 
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+        executor.shutdown();
+
+
+    }//GEN-LAST:event_btnEnviarActionPerformed
 
     private synchronized void sendMessage() {
         // TODO add your handling code here:
@@ -266,6 +271,13 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             message = message.substring(0, message.length() - 1);
         }
 
+        //inserir um separador MESSAGE_SEPARATORs
+        //inserir a cor
+        //pra mandar pro servidor a cor, temos que transformar pra string, usnado color.getRGB();
+        int cor = color.getRGB();
+        //concatenar a cor na mensagem.
+        message = message + SocketMessengerConstants.MESSAGE_SEPARATOR + cor;
+        System.out.println("message " + message);
         if (listArrayPoint.size() - 1 > 0) {
             manager.sendMessage(String.valueOf(command),
                     message);
@@ -284,6 +296,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     private javax.swing.JButton btnApagar;
     private javax.swing.JButton btnColor;
     private javax.swing.JButton btnDesenhar;
+    private javax.swing.JButton btnEnviar;
     private javax.swing.JPanel controlPanel;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
@@ -292,7 +305,6 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     private javax.swing.JMenuItem jMenuItemDesconecta;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSlider jSliderEraser;
-    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -328,20 +340,19 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     @Override
     public void setArrayPoint(List<Point> list) {
 
-            ArrayList<Point> temp = new ArrayList(list);
+        ArrayList<Point> temp = new ArrayList(list);
 
-            temp.forEach((p) -> {
-                listArrayPoint.add(p);
-            });
+        temp.forEach((p) -> {
+            listArrayPoint.add(p);
+        });
 
-            System.out.println("listArrayPoint size: " + listArrayPoint.size());
-        
+        System.out.println("listArrayPoint size: " + listArrayPoint.size());
 
     }
 
     @Override
     public void setClearArrayPoint() {
-       arr.clear();
+        arr.clear();
     }
 
     // MyMessageListener listens for new messages from MessageManager and 
@@ -356,7 +367,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             clientExecutor.submit(() -> {
                 new SwingControlDemo.MessageDisplayer(from, message);
             });
-            
+
             clientExecutor.shutdown();
 
         } // end method messageReceived
@@ -374,35 +385,40 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
 
         // MessageDisplayer constructor
         private MessageDisplayer(String from, String body) {
-             ExecutorService clientExecutor = Executors.newCachedThreadPool();
-             clientExecutor.submit(() -> {
+            ExecutorService clientExecutor = Executors.newCachedThreadPool();
+            clientExecutor.submit(() -> {
                 displayMessage(from, body);
             });
-            
+
             clientExecutor.shutdown();
 
         } // end MessageDisplayer constructor
-        
-        private synchronized void displayMessage(String from, String body){
-            
-             isArrayPointReady = false;
+
+        private synchronized void displayMessage(String from, String body) {
+
+            isArrayPointReady = false;
             ExecutorService executor = Executors.newFixedThreadPool(1);
 
             Future<Boolean> future = (Future<Boolean>) executor.submit(() -> {
-                elements = Integer.valueOf(from); // store originating user
+                int comando = Integer.valueOf(from); // store originating user
                 messageBody = body; // store message body
+
+                String split1[] = messageBody.split(SocketMessengerConstants.MESSAGE_SEPARATOR);
+
                 arr.clear();
                 System.out.println("Array clear: " + arr.size());
-                
 
-                String points[] = messageBody.split(CanvasConstants.POINT_SEPARATOR);
+                String points[] = split1[0].split(CanvasConstants.POINT_SEPARATOR);
                 System.out.println("Number of points: " + points.length);
                 for (i = 0; i < points.length; i += 2) {
                     System.out.println("For >>>" + points[i] + " " + points[i + 1]);
                     arr.add(new Point(Integer.valueOf(points[i]), Integer.valueOf(points[i + 1])));
                 }
 
-                command = CanvasConstants.DESENHO_LIVRE;
+                command = comando;
+                int RGB = Integer.parseInt(split1[1]);
+                color = new Color(RGB);
+
                 return true;
             });
 
@@ -426,8 +442,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             } catch (InterruptedException | ExecutionException ex) {
                 Logger.getLogger(SwingControlDemo.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
+
         }
 
     } // end MessageDisplayer inner class

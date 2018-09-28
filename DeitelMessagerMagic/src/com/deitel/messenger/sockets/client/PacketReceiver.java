@@ -84,12 +84,18 @@ public class PacketReceiver implements Runnable
 
          // ignore messages that do not contain a user 
          // name and message body
-         if ( tokenizer.countTokens() == 2 ) 
+         if ( tokenizer.countTokens() == 3 ) 
          {
             // send message to MessageListener
-            messageListener.messageReceived( 
-               tokenizer.nextToken(), // user name
-               tokenizer.nextToken() ); // message body
+            String comando = tokenizer.nextToken();
+                String pontos = tokenizer.nextToken();
+                String cor = tokenizer.nextToken();
+                
+                String concat = pontos + MESSAGE_SEPARATOR + cor;
+                
+               // send message to MessageListener
+               messageListener.messageReceived( 
+                  comando, concat );
          } // end if
       } // end while
 
