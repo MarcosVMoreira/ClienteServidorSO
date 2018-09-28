@@ -240,15 +240,12 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     }//GEN-LAST:event_jMenuItemConectaActionPerformed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-        executor.submit(new Runnable() {
+        Thread T1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 sendMessage();
             }
         });
-
-        executor.shutdown();
 
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
