@@ -8,6 +8,7 @@ import com.deitel.messenger.SwingControlDemo;
 
 public class DeitelMessenger
 {   
+    
    public static void main( String args[] ) 
    {
       MessageManager messageManager; // declare MessageManager

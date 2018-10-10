@@ -31,13 +31,16 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
 
     private int command;
     private Color color = Color.BLACK;
+    private Color myColor = Color.BLACK;
     private String message;
     private boolean critical_area = false;
     private MyMessageListener messageListener;
-    private CopyOnWriteArrayList arr = null;
+    private CopyOnWriteArrayList listaPontosRecebidosServidor = null;
+    private CopyOnWriteArrayList listaPontosApagarRecebidosServidor = null;
     private boolean isArrayPointReady = false;
     private MessageManager manager; // communicates with server
-    private List<Point> listArrayPoint;
+    private List<Point> cloneDaListaDesenho;
+    private List<Point> cloneDaListaApagar;
 
     /**
      * Creates new form SwingControlDemo
@@ -45,11 +48,16 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
      * @param manager
      */
     public SwingControlDemo(MessageManager manager) {
+        setLocationRelativeTo(null);
         this.command = CanvasConstants.DESENHO_LIVRE;
         messageListener = new SwingControlDemo.MyMessageListener();
         this.manager = manager; // set the MessageManager
-        listArrayPoint = new ArrayList<>();
-        arr = new CopyOnWriteArrayList<>();
+
+        cloneDaListaDesenho = new ArrayList<>();
+        cloneDaListaApagar = new ArrayList<>();
+        listaPontosRecebidosServidor = new CopyOnWriteArrayList<>();
+        listaPontosApagarRecebidosServidor = new CopyOnWriteArrayList<>();
+
         initComponents();
     }
 
@@ -218,6 +226,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
         // TODO add your handling code here:
 
         color = JColorChooser.showDialog(null, "Selecione a Cor", Color.black);
+        myColor = color;
         btnColor.setBackground(color);
     }//GEN-LAST:event_btnColorActionPerformed
 
@@ -245,6 +254,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
         executor.submit(new Runnable() {
             @Override
             public void run() {
+
                 sendMessage();
             }
         });
@@ -258,15 +268,22 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
         // TODO add your handling code here:
         String message = "";
 
-        //transmite para o server
+        //transmite para o server os pontos a desenhar
         Point temp[] = new Point[100000];
-        listArrayPoint.toArray(temp);
+        cloneDaListaDesenho.toArray(temp);
 
-        for (int i = 0; i < listArrayPoint.size() - 1; i++) {
+        for (int i = 0; i < cloneDaListaDesenho.size(); i++) {
 
             message += temp[i].x + CanvasConstants.POINT_SEPARATOR + temp[i].y + CanvasConstants.POINT_SEPARATOR;
         }
 
+        //se a lista de pontos a desenhar não estiver vazia 
+        if (!cloneDaListaDesenho.isEmpty()) {
+            message = message.substring(0, message.length() - 1);
+        } else {
+            //insere o ponto -1,-1 para indicar que não tem informação para desenhar na tela.
+            message += "-1" + CanvasConstants.POINT_SEPARATOR + "-1";
+        }
         int cor = color.getRGB();
 
         if (message.length() > 0) {
@@ -274,18 +291,29 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             message = message + SocketMessengerConstants.MESSAGE_SEPARATOR + cor;
         }
 
-        //inserir um separador MESSAGE_SEPARATORs
-        //inserir a cor
-        //pra mandar pro servidor a cor, temos que transformar pra string, usnado color.getRGB();
-        //concatenar a cor na mensagem.
-      
-        System.out.println("message " + message);
-        if (listArrayPoint.size() - 1 > 0) {
+        message += SocketMessengerConstants.MESSAGE_SEPARATOR;
+
+        Point tempApagar[] = new Point[100000];
+        cloneDaListaApagar.toArray(tempApagar);
+
+        for (int i = 0; i < cloneDaListaApagar.size(); i++) {
+            message += tempApagar[i].x + CanvasConstants.POINT_SEPARATOR + tempApagar[i].y + CanvasConstants.POINT_SEPARATOR;
+        }
+
+        if (!cloneDaListaApagar.isEmpty()) {
+            message = message.substring(0, message.length() - 1);
+        } else {
+            message += "-1" + CanvasConstants.POINT_SEPARATOR + "-1";
+        }
+
+        if (message.length() > 0) {
             manager.sendMessage(String.valueOf(command),
                     message);
         }
 
-        listArrayPoint.clear();
+        cloneDaListaDesenho.clear();
+        cloneDaListaApagar.clear();
+
         System.out.println("sendMessage : " + message);
     }
 
@@ -331,7 +359,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
 
     @Override
     public List<Point> getArrayPoint() {
-        return arr;
+        return listaPontosRecebidosServidor;
     }
 
     @Override
@@ -341,20 +369,48 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
 
     @Override
     public void setArrayPoint(List<Point> list) {
-
+        //criar outro paga apagar listArrayPointApagar
         ArrayList<Point> temp = new ArrayList(list);
 
         temp.forEach((p) -> {
-            listArrayPoint.add(p);
+            cloneDaListaDesenho.add(p);
         });
 
-        System.out.println("listArrayPoint size: " + listArrayPoint.size());
+        System.out.println("listArrayPoint size: " + cloneDaListaDesenho.size());
 
     }
 
     @Override
     public void setClearArrayPoint() {
-        arr.clear();
+        listaPontosRecebidosServidor.clear();
+    }
+
+    @Override
+    public void restoreColor() {
+        color = myColor;
+    }
+
+    @Override
+    public void setArrayPointApagar(List<Point> list) {
+        //criar outro paga apagar listArrayPointApagar
+        ArrayList<Point> temp = new ArrayList(list);
+
+        temp.forEach((p) -> {
+            cloneDaListaApagar.add(p);
+        });
+
+        System.out.println("listaArrayPointApagar size: " + cloneDaListaApagar.size());
+
+    }
+
+    @Override
+    public List<Point> getArrayPointApagar() {
+        return listaPontosApagarRecebidosServidor;
+    }
+
+    @Override
+    public void setClearArrayPointApagar() {
+        listaPontosApagarRecebidosServidor.clear();
     }
 
     // MyMessageListener listens for new messages from MessageManager and 
@@ -402,25 +458,46 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             ExecutorService executor = Executors.newFixedThreadPool(1);
 
             Future<Boolean> future = (Future<Boolean>) executor.submit(() -> {
-                int comando = Integer.valueOf(from); // store originating user
+
+                elements = Integer.valueOf(from); // store originating user
                 messageBody = body; // store message body
 
-                String split1[] = messageBody.split(SocketMessengerConstants.MESSAGE_SEPARATOR);
+                //divide a mensagem com os pontos do servidor
+                String splits[] = messageBody.split(SocketMessengerConstants.MESSAGE_SEPARATOR);
 
-                arr.clear();
-                System.out.println("Array clear: " + arr.size());
+                // processa os dados do desenho 
+                String[] pointsDesenhar = splits[0].split(CanvasConstants.POINT_SEPARATOR);
+                System.out.println("Number of points draw: " + pointsDesenhar.length);
+                for (i = 0; i < pointsDesenhar.length; i += 2) {
 
-                String points[] = split1[0].split(CanvasConstants.POINT_SEPARATOR);
-                System.out.println("Number of points: " + points.length);
-                for (i = 0; i < points.length; i += 2) {
-                    System.out.println("For >>>" + points[i] + " " + points[i + 1]);
-                    arr.add(new Point(Integer.valueOf(points[i]), Integer.valueOf(points[i + 1])));
+                    if (pointsDesenhar[i].equalsIgnoreCase("-1")) {
+                        listaPontosRecebidosServidor.clear();
+                        break;
+                    }
+
+                    System.out.println("For >>>" + pointsDesenhar[i] + " " + pointsDesenhar[i + 1]);
+                    listaPontosRecebidosServidor.add(new Point(Integer.valueOf(pointsDesenhar[i]), Integer.valueOf(pointsDesenhar[i + 1])));
                 }
 
-                command = comando;
-                int RGB = Integer.parseInt(split1[1]);
+                
+                int RGB = Integer.parseInt(splits[1]);
                 color = new Color(RGB);
+                
+                // processa os dados de apagar
+                String[] pointsApagar = splits[2].split(CanvasConstants.POINT_SEPARATOR);
+                System.out.println("Number of points erase: " + pointsApagar.length);
+                for (i = 0; i < pointsApagar.length; i += 2) {
 
+                    if (pointsApagar[i].equalsIgnoreCase("-1")) {
+                        listaPontosApagarRecebidosServidor.clear();
+                        break;
+                    }
+
+                    System.out.println("For >>>" + pointsApagar[i] + " " + pointsApagar[i + 1]);
+                    listaPontosApagarRecebidosServidor.add(new Point(Integer.valueOf(pointsApagar[i]), Integer.valueOf(pointsApagar[i + 1])));
+                }
+
+                command = elements;
                 return true;
             });
 
@@ -429,13 +506,14 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
                 isArrayPointReady = future.get();
                 executor.shutdown();
 
-                System.out.println("Size array return by future call: " + arr.size());
+                System.out.println("Pontos recebidos para desenho: " + listaPontosRecebidosServidor.size());
+                System.out.println("Pontos recebidos para apagar: " + listaPontosApagarRecebidosServidor.size());
 
                 //notify painel
                 for (Component c : controlPanel.getComponents()) {
                     if (c instanceof JPanel) {
                         JPanel temp = (JPanel) c;
-                        System.out.println("Notifica JPANEL: " + temp.getName());
+                        System.out.println("Notifica JPANEL: " + temp.getUIClassID());
                         temp.repaint();
                     }
 

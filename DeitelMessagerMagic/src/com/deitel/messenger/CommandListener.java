@@ -21,8 +21,14 @@ public interface CommandListener {
     public String getMessage();
     
     public List<Point> getArrayPoint();
+    public List<Point> getArrayPointApagar();
     public void setClearArrayPoint();
     public boolean getArrayPointIsReady();
     public void setArrayPoint(List<Point> list);
+    public void setArrayPointApagar(List<Point> list);
+
+    public void restoreColor();
+
+    public void setClearArrayPointApagar();
     
 }
