@@ -14,21 +14,33 @@ import java.util.List;
  * @author avilapm
  */
 public interface CommandListener {
-    
+
     public int getCommand();
+
     public int getSizeEraser();
+
     public Color getColor();
+
     public String getMessage();
-    
+
+    public int getSizeEraserFromServer();
+
+    public void restoreSizeEraser();
+
     public List<Point> getArrayPoint();
+
     public List<Point> getArrayPointApagar();
+
     public void setClearArrayPoint();
+
     public boolean getArrayPointIsReady();
+
     public void setArrayPoint(List<Point> list);
+
     public void setArrayPointApagar(List<Point> list);
 
     public void restoreColor();
 
     public void setClearArrayPointApagar();
-    
+
 }

@@ -17,6 +17,7 @@ public class MyCanvas extends JPanel implements MouseListener, MouseMotionListen
 
     private List listaDesenhoServidor;
     private List listaApagarServidor;
+    private int borracha;
     private final List listaDesenhoCliente;
     private final List listaApagarCliente;
     private final CommandListener command;
@@ -57,6 +58,16 @@ public class MyCanvas extends JPanel implements MouseListener, MouseMotionListen
             listaApagarServidor = listaApagarCliente;
         }
 
+        if (command.getSizeEraser() == -1) {
+            borracha = command.getSizeEraser();
+        } else {
+            borracha = command.getSizeEraserFromServer();
+        }
+
+        command.restoreSizeEraser();
+
+        System.out.println("BORRACHA: " + borracha);
+
         System.out.println("Pontos: " + listaDesenhoServidor.size());
         System.out.println("Apagar: " + listaApagarServidor.size());
 
@@ -79,8 +90,7 @@ public class MyCanvas extends JPanel implements MouseListener, MouseMotionListen
                 Point temp_apagar[] = new Point[100000];
                 listaApagarServidor.toArray(temp_apagar);
                 for (int i = 0; i < listaApagarServidor.size() - 1; i++) {
-
-                    g.clearRect(temp_apagar[i].x, temp_apagar[i].y, command.getSizeEraser(), command.getSizeEraser());
+                    g.clearRect(temp_apagar[i].x, temp_apagar[i].y, borracha, borracha);
                 }
                 break;
             case CanvasConstants.ESCREVER:

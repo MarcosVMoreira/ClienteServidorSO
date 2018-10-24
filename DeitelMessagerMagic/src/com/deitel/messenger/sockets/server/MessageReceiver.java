@@ -63,14 +63,16 @@ public class MessageReceiver implements Runnable {
 
                 // ignore messages that do not contain a user
                 // name and message body
-                if (tokenizer.countTokens() == 4) //mudar para 4, porque foi adicionado o Apagar
+                if (tokenizer.countTokens() == 5) //mudar para 4, porque foi adicionado o Apagar
                 {
                     String comando = tokenizer.nextToken();
                     String pontos = tokenizer.nextToken();
                     String cor = tokenizer.nextToken();
                     String apagar = tokenizer.nextToken();
+                    String borracha = tokenizer.nextToken();
 
-                    String concat = pontos + MESSAGE_SEPARATOR + cor + MESSAGE_SEPARATOR + apagar;
+                    String concat = pontos + MESSAGE_SEPARATOR + cor + MESSAGE_SEPARATOR + apagar + 
+                            MESSAGE_SEPARATOR + borracha;
 
                     // send message to MessageListener
                     messageListener.messageReceived(

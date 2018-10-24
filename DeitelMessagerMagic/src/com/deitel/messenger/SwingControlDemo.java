@@ -32,6 +32,7 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     private int command;
     private Color color = Color.BLACK;
     private Color myColor = Color.BLACK;
+    private int eraserSize = -1;
     private String message;
     private boolean critical_area = false;
     private MyMessageListener messageListener;
@@ -267,6 +268,9 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     private synchronized void sendMessage() {
         // TODO add your handling code here:
         String message = "";
+        
+        
+        System.out.println("TTTTTTTTTTTTTTTTTTESSSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTEEEEEEEEEEE");
 
         //transmite para o server os pontos a desenhar
         Point temp[] = new Point[100000];
@@ -306,7 +310,13 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
             message += "-1" + CanvasConstants.POINT_SEPARATOR + "-1";
         }
 
+        //PASSANDO TAMANHO BORRACHA
+        message += SocketMessengerConstants.MESSAGE_SEPARATOR;
+
+        message += jSliderEraser.getValue();
+
         if (message.length() > 0) {
+//            System.out.println("TAMANHO DA BORRACHA "+jSliderEraser.getValue());
             manager.sendMessage(String.valueOf(command),
                     message);
         }
@@ -345,6 +355,16 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
     @Override
     public int getSizeEraser() {
         return jSliderEraser.getValue();
+    }
+    
+    @Override 
+    public int getSizeEraserFromServer() {
+        return eraserSize;
+    }
+
+    @Override
+    public void restoreSizeEraser() {
+        eraserSize = -1;
     }
 
     @Override
@@ -479,10 +499,9 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
                     listaPontosRecebidosServidor.add(new Point(Integer.valueOf(pointsDesenhar[i]), Integer.valueOf(pointsDesenhar[i + 1])));
                 }
 
-                
                 int RGB = Integer.parseInt(splits[1]);
                 color = new Color(RGB);
-                
+
                 // processa os dados de apagar
                 String[] pointsApagar = splits[2].split(CanvasConstants.POINT_SEPARATOR);
                 System.out.println("Number of points erase: " + pointsApagar.length);
@@ -496,6 +515,13 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
                     System.out.println("For >>>" + pointsApagar[i] + " " + pointsApagar[i + 1]);
                     listaPontosApagarRecebidosServidor.add(new Point(Integer.valueOf(pointsApagar[i]), Integer.valueOf(pointsApagar[i + 1])));
                 }
+
+                //tamanho borracha
+                String[] tamBorracha = splits[3].split(CanvasConstants.POINT_SEPARATOR);
+                eraserSize = Integer.parseInt(tamBorracha[0]);
+
+//                jSliderEraser.setValue(Integer.parseInt(tamBorracha[0]));
+                System.out.println("Tamanho da borracha recebido: " + tamBorracha[0]);
 
                 command = elements;
                 return true;
