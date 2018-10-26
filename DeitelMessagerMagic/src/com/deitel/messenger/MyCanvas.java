@@ -89,6 +89,10 @@ public class MyCanvas extends JPanel implements MouseListener, MouseMotionListen
                 /* processa pontos para apagar */
                 Point temp_apagar[] = new Point[100000];
                 listaApagarServidor.toArray(temp_apagar);
+                System.out.println("VALOR BORRACHA DENTRO DO PAINT: "+borracha);
+                if (borracha == -1) {
+                    borracha = command.getSizeEraser();
+                }
                 for (int i = 0; i < listaApagarServidor.size() - 1; i++) {
                     g.clearRect(temp_apagar[i].x, temp_apagar[i].y, borracha, borracha);
                 }
