@@ -269,9 +269,6 @@ public class SwingControlDemo extends javax.swing.JFrame implements CommandListe
         // TODO add your handling code here:
         String message = "";
         
-        
-        System.out.println("TTTTTTTTTTTTTTTTTTESSSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTEEEEEEEEEEE");
-
         //transmite para o server os pontos a desenhar
         Point temp[] = new Point[100000];
         cloneDaListaDesenho.toArray(temp);
