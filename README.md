@@ -1,4 +1,4 @@
-# Trabalho de Engenharia de Software
+# Sockets e multithread
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Estudo dirigido feito em `Java` na disciplina de **Sistemas Operacionais II** do curso de [Engenharia de Computação](https://pcs.ifsuldeminas.edu.br/index.php?option=com_content&view=article&id=639&Itemid=267) do [IFSULDEMINAS - Campus Poços de Caldas](https://pcs.ifsuldeminas.edu.br/). <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Utilizando *sockets* e *multithread*, assim como interface gráfica, o objetivo do projeto foi desenvolver um *software* similar ao encontrado no jogo **Gartic**, onde um usuário pode realizar desenhos na sua própria tela e os outros usuários conectados ao mesmo servidor conseguem visualizar tal desenho em tempo real. Foi utilizada a biblioteca Graphics2D para desenvolvimento da parte gráfica.
